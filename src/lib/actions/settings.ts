@@ -1,12 +1,46 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 
+export async function getAccountStats() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
+
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [txTotal, monthlyAgg, categoryCount, budgetCount] = await Promise.all([
+    prisma.transaction.count({ where: { userId } }),
+    prisma.transaction.groupBy({
+      by: ["type"],
+      where: { userId, date: { gte: startOfMonth } },
+      _sum: { amount: true },
+    }),
+    prisma.category.count({ where: { userId } }),
+    prisma.budget.count({
+      where: {
+        userId,
+        month: now.getMonth() + 1,
+        year: now.getFullYear(),
+      },
+    }),
+  ]);
+
+  const monthIncome =
+    monthlyAgg.find((r) => r.type === "INCOME")?._sum.amount ?? 0;
+  const monthExpense =
+    monthlyAgg.find((r) => r.type === "EXPENSE")?._sum.amount ?? 0;
+
+  return { txTotal, monthIncome, monthExpense, categoryCount, budgetCount };
+}
+
 export async function getProfile() {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) redirect("/login");
   return prisma.user.findUnique({
     where: { id: session.user.id },
     select: { id: true, name: true, email: true, createdAt: true },
