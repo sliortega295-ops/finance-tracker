@@ -1,0 +1,17 @@
+kill: invalid argument r
+
+用法：
+ kill [options] <pid> [...]
+
+选项：
+ <pid> [...]            send signal to every <pid> listed
+ -<signal>, -s, --signal <signal>
+                        specify the <signal> to be sent
+ -q, --queue <value>    integer value to be sent with the signal
+ -l, --list=[<signal>]  list all signal names, or convert one to a name
+ -L, --table            list all signal names in a nice table
+
+ -h, --help     显示此帮助然后离开
+ -V, --version  显示程序版本然后离开
+
+欲了解更多详细信息，请参见 kill(1)。

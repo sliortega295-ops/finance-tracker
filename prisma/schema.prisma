@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// 用户表
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  password      String?
+  name          String?
+  transactions  Transaction[]
+  budgets       Budget[]
+  categories    Category[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// 分类表 (每个用户可以有自己的分类)
+model Category {
+  id            String        @id @default(cuid())
+  userId        String
+  name          String
+  type          String        // INCOME (收入) 或 EXPENSE (支出)
+  icon          String?       // 存储分类图标的标识符
+  transactions  Transaction[]
+  budgets       Budget[]
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([userId, name, type]) // 同一用户下，同类型分类名称不能重复
+}
+
+// 收支明细表
+model Transaction {
+  id            String        @id @default(cuid())
+  userId        String
+  categoryId    String
+  amount        Float         // SQLite doesnt support Decimal
+  type          String        // INCOME (收入) 或 EXPENSE (支出)
+  date          DateTime
+  description   String?
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// 预算表
+model Budget {
+  id            String        @id @default(cuid())
+  userId        String
+  categoryId    String
+  amount        Float         // SQLite doesnt support Decimal
+  month         Int           // 1-12
+  year          Int
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([userId, categoryId, month, year]) // 确保每个用户每个月每个分类只有一个预算
+}
