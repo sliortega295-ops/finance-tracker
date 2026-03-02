@@ -16,6 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/" className="p-2 hover:bg-gray-100 rounded-md font-medium text-gray-700">总览</Link>
           <Link href="/transactions" className="p-2 hover:bg-gray-100 rounded-md font-medium text-gray-700">收支记录</Link>
           <Link href="/budgets" className="p-2 hover:bg-gray-100 rounded-md font-medium text-gray-700">预算管理</Link>
+          <Link href="/categories" className="p-2 hover:bg-gray-100 rounded-md font-medium text-gray-700">分类管理</Link>
           <Link href="/settings" className="p-2 hover:bg-gray-100 rounded-md font-medium text-gray-700">个人中心</Link>
           <Link href="/guide" className="p-2 hover:bg-gray-100 rounded-md font-medium text-gray-700">使用说明</Link>
         </nav>

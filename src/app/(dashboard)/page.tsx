@@ -1,9 +1,13 @@
-import { getDashboardData } from "@/lib/actions/transaction";
+import { getDashboardData, getMonthlyTrend } from "@/lib/actions/transaction";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClientPieChart } from "./ClientPieChart";
+import { ClientLineChart } from "./ClientLineChart";
+
+type DashboardData = Awaited<ReturnType<typeof getDashboardData>>;
+type RecentTx = DashboardData["recentTransactions"][number];
 
 export default async function DashboardPage() {
-  const data = await getDashboardData();
+  const [data, trend] = await Promise.all([getDashboardData(), getMonthlyTrend()]);
 
   return (
     <div className="space-y-6">
@@ -38,10 +42,10 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart */}
+        {/* Pie Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>支出分析</CardTitle>
+            <CardTitle>本月支出分析</CardTitle>
           </CardHeader>
           <CardContent className="h-[300px] flex items-center justify-center">
             {data.pieChartData.length > 0 ? (
@@ -60,7 +64,7 @@ export default async function DashboardPage() {
           <CardContent>
             {data.recentTransactions.length > 0 ? (
               <div className="space-y-4">
-                {data.recentTransactions.map((t: any) => (
+                {data.recentTransactions.map((t: RecentTx) => (
                   <div key={t.id} className="flex justify-between items-center border-b pb-2">
                     <div>
                       <p className="font-medium">{t.description || t.category.name}</p>
@@ -78,6 +82,16 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Trend Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>近 6 个月收支趋势</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[260px]">
+          <ClientLineChart data={trend} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

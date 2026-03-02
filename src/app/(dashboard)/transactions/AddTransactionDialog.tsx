@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,7 +72,16 @@ export function AddTransactionDialog({ categories }: { categories: { id: string;
           </div>
 
           <div className="space-y-2">
-            <Label>分类</Label>
+            <div className="flex justify-between items-center">
+              <Label>分类</Label>
+              <Link
+                href="/categories"
+                className="text-xs text-blue-500 hover:underline"
+                onClick={() => setOpen(false)}
+              >
+                管理分类
+              </Link>
+            </div>
             <Select name="categoryId" required>
               <SelectTrigger>
                 <SelectValue placeholder="选择分类" />

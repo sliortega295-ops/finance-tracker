@@ -14,29 +14,31 @@ datasource db {
 
 // 用户表
 model User {
-  id            String        @id @default(cuid())
-  email         String        @unique
-  password      String?
-  name          String?
-  transactions  Transaction[]
-  budgets       Budget[]
-  categories    Category[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                    String                 @id @default(cuid())
+  email                 String                 @unique
+  password              String?
+  name                  String?
+  transactions          Transaction[]
+  budgets               Budget[]
+  categories            Category[]
+  recurringTransactions RecurringTransaction[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 }
 
 // 分类表 (每个用户可以有自己的分类)
 model Category {
-  id            String        @id @default(cuid())
-  userId        String
-  name          String
-  type          String        // INCOME (收入) 或 EXPENSE (支出)
-  icon          String?       // 存储分类图标的标识符
-  transactions  Transaction[]
-  budgets       Budget[]
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                    String                 @id @default(cuid())
+  userId                String
+  name                  String
+  type                  String                 // INCOME (收入) 或 EXPENSE (支出)
+  icon                  String?                // 存储分类图标的标识符
+  transactions          Transaction[]
+  budgets               Budget[]
+  recurringTransactions RecurringTransaction[]
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 
   @@unique([userId, name, type]) // 同一用户下，同类型分类名称不能重复
 }
@@ -70,4 +72,21 @@ model Budget {
   updatedAt     DateTime      @updatedAt
 
   @@unique([userId, categoryId, month, year]) // 确保每个用户每个月每个分类只有一个预算
+}
+
+// 定期记录模板表
+model RecurringTransaction {
+  id          String    @id @default(cuid())
+  userId      String
+  categoryId  String
+  amount      Float
+  type        String    // INCOME 或 EXPENSE
+  description String?
+  dayOfMonth  Int       // 每月触发日，1-28
+  isActive    Boolean   @default(true)
+  lastApplied DateTime? // 最近一次自动生成时间
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
