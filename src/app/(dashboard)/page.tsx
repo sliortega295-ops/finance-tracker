@@ -60,7 +60,7 @@ export default async function DashboardPage() {
           <CardContent>
             {data.recentTransactions.length > 0 ? (
               <div className="space-y-4">
-                {data.recentTransactions.map(t => (
+                {data.recentTransactions.map((t: any) => (
                   <div key={t.id} className="flex justify-between items-center border-b pb-2">
                     <div>
                       <p className="font-medium">{t.description || t.category.name}</p>
