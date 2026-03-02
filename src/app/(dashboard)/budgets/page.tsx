@@ -21,7 +21,7 @@ export default async function BudgetsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {budgetProgress.length > 0 ? (
-          budgetProgress.map(b => (
+          budgetProgress.map((b: any) => (
             <Card key={b.id} className={b.isOver ? "border-red-500 shadow-sm" : ""}>
               <CardHeader className="pb-2">
                 <CardTitle className="flex justify-between items-center text-lg">
